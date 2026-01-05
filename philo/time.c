@@ -12,6 +12,7 @@
 
 #include "philosophers.h"
 
+/* Return current time in milliseconds. */
 long	get_current_time_ms(void)
 {
 	struct timeval	tval;
@@ -20,6 +21,7 @@ long	get_current_time_ms(void)
 	return (tval.tv_sec * 1000L + tval.tv_usec / 1000L);
 }
 
+/* Return elapsed milliseconds since start_time_ms, clamped at 0. */
 long	longtimestamp_ms(long start_time_ms)
 {
 	long	now;

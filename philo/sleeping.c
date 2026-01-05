@@ -12,6 +12,7 @@
 
 #include "philosophers.h"
 
+/* Sleep for duration_ms using short usleep steps. */
 void	custom_sleep(int duration_ms)
 {
 	long	start;

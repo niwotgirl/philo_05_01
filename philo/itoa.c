@@ -6,12 +6,13 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/08 11:50:07 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/10/20 11:46:41 by aabelkis         ###   ########.fr       */
+/*   Updated: 2026/01/05 16:45:47 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
+/* Compute decimal length of integer n. 
 static int	len_of_int(int n)
 {
 	int	len;
@@ -30,9 +31,10 @@ static int	len_of_int(int n)
 		len++;
 	}
 	return (len);
-}
+}*/
 
-static char	*ft_pos(int n, char *result, int len)
+/* Fill result with digits of positive n.
+/*static char	*ft_pos(int n, char *result, int len)
 {
 	while (n > 0)
 	{
@@ -41,8 +43,9 @@ static char	*ft_pos(int n, char *result, int len)
 		len--;
 	}
 	return (result);
-}
+}*/
 
+/* Convert int to newly allocated string.
 char	*ft_itoa(int n)
 {
 	char	*result;
@@ -69,4 +72,4 @@ char	*ft_itoa(int n)
 	if (n > 0)
 		ft_pos(n, result, len);
 	return (result);
-}
+}*/

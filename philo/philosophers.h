@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 14:01:59 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/11/24 16:09:56 by aabelkis         ###   ########.fr       */
+/*   Updated: 2026/01/05 20:41:43 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,8 +51,6 @@ typedef struct s_philo
 	int					minimum_meals;
 	long				last_meal_time_ms;
 	int					meals_eaten;
-	int					status;
-	int					has_new_status;
 	struct s_monitor	*monitor;
 }	t_philo;
 
@@ -113,17 +111,26 @@ typedef struct s_monitor_vars
 }   t_monitor_vars;
 */
 
+int		handle_single_philosopher(t_monitor *m);
+void	init_philosophers(int argc, char **argv, t_monitor *m);
+int		validate_and_init(int argc, char **argv, t_monitor *m);
 int		ft_error_atoi(const char *nptr);
-int		ft_error(int argc, char **argv, int i);
-char	*ft_strcpy(char *dest, const char *src);
-char	*ft_strdup(const char *s);
-char	*ft_itoa(int n);
+int		ft_error(char **argv, int i);
+//char	*ft_strcpy(char *dest, const char *src);
+//char	*ft_strdup(const char *s);
+//char	*ft_itoa(int n);
 void	*monitor_routine(void *arg);
-void	print_routine(t_philo *philo, t_monitor *monitor);
+void	print_philo_status(t_monitor_vars *vars);
+int		check_philo_death(t_monitor_vars *vars);
+void	print_timestamped_id(t_monitor_vars *vars);
 void	*routine(void *arg);
 void	custom_sleep(int val);
 void	struct_init(int val, int j, int i, t_philo *philo);
-long	timestamp_ms(long start_time_ms);
+//long	timestamp_ms(long start_time_ms);
 long	get_current_time_ms(void);
+void	pick_up_forks(t_philo *philo);
+void	eat(t_philo *philo);
+void	release_forks(t_philo *philo);
+int		has_finished_meals(t_philo *philo);
 
 #endif

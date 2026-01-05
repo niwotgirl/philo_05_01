@@ -12,7 +12,8 @@
 
 #include "philosophers.h"
 
-void	struct_init(int val, int j, int i, t_philo *philo) //j needed for ID, i so I know which arg, val so I know what the val is, and philo so I know where to store it
+/* Write parsed argument value into the appropriate t_philo field. */
+void	struct_init(int val, int j, int i, t_philo *philo)
 {
 	if (i == 2)
 	{

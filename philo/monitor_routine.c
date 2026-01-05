@@ -6,12 +6,13 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 14:01:44 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/11/26 15:38:33 by aabelkis         ###   ########.fr       */
+/*   Updated: 2026/01/05 20:41:43 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
+/* Abort if someone died; otherwise prime monitor loop counters/timestamp. */
 int	check_someone_died_and_init(t_monitor_vars *vars)
 {
 	int	someone_died;
@@ -27,59 +28,25 @@ int	check_someone_died_and_init(t_monitor_vars *vars)
 	return (0);
 }
 
+/* Capture current philosopher state under mutex. */
 void	snapshot_philo_state(t_monitor_vars *vars)
 {
 	vars->p = &vars->monitor->philos[vars->i];
 	pthread_mutex_lock(&vars->monitor->print_mutex);
 	vars->last_meal = vars->p->last_meal_time_ms;
-	vars->status = vars->p->status;
-	vars->new_status = vars->p->has_new_status;
 	vars->meals = vars->p->meals_eaten;
 	vars->min_meals = vars->p->minimum_meals;
 	pthread_mutex_unlock(&vars->monitor->print_mutex);
 }
 
-void	print_timestamped_id(t_monitor_vars *vars)
-{
-	printf("%ld %d ", vars->now - vars->monitor->start_time_ms, vars->p->id);
-}
-
-int	check_philo_death(t_monitor_vars *vars)
-{
-	if (vars->now - vars->last_meal >= vars->p->time_to_die)
-	{
-		pthread_mutex_lock(&vars->monitor->print_mutex);
-		print_timestamped_id(vars);
-		printf("died\n");
-		vars->monitor->someone_died = 1;
-		pthread_mutex_unlock(&vars->monitor->print_mutex);
-		return (1);
-	}
-	return (0);
-}
-
-void	print_philo_status(t_monitor_vars *vars)
-{
-	if (!vars->new_status)
-		return ;
-	pthread_mutex_lock(&vars->monitor->print_mutex);
-	print_timestamped_id(vars);
-	if (vars->status == 1)
-		printf("is eating\n");
-	else if (vars->status == 2)
-		printf("is sleeping\n");
-	else if (vars->status == 3)
-		printf("is thinking\n");
-	vars->p->has_new_status = 0;
-	pthread_mutex_unlock(&vars->monitor->print_mutex);
-}
-
+/* Track whether all philosophers met the meal quota. */
 void	update_all_done_flag(t_monitor_vars *vars)
 {
 	if (vars->min_meals == 0 || vars->meals < vars->min_meals)
 		vars->all_done = 0;
 }
 
+/* Signal termination when everyone is done eating. */
 int	handle_all_done(t_monitor_vars *vars)
 {
 	pthread_mutex_lock(&vars->monitor->print_mutex);
@@ -88,7 +55,8 @@ int	handle_all_done(t_monitor_vars *vars)
 	return (1);
 }
 
-void	*monitor_routine(void *arg)
+/* Monitor thread: watch deaths, print statuses, stop on completion. */
+/*void	*monitor_routine(void *arg)
 {
 	t_monitor_vars	vars;
 
@@ -111,6 +79,33 @@ void	*monitor_routine(void *arg)
 			if (handle_all_done(&vars) == 1)
 				return (NULL);
 		usleep(500);
+	}
+	return (NULL);
+}*/
+//new version:
+/* Monitor thread: watch deaths, print statuses, stop on completion. */
+void	*monitor_routine(void *arg)
+{
+	t_monitor_vars	vars;
+	int				has_meal_limit;
+
+	vars.monitor = (t_monitor *)arg;
+	has_meal_limit = (vars.monitor->philos[0].minimum_meals > 0);
+	while (1)
+	{
+		if (check_someone_died_and_init(&vars))
+			break ;
+		while (vars.i < vars.monitor->num_of_phil)
+		{
+			snapshot_philo_state(&vars);
+			check_philo_death(&vars);
+			update_all_done_flag(&vars);
+			vars.i++;
+		}
+		if (vars.all_done && has_meal_limit)
+			if (handle_all_done(&vars) == 1)
+				return (NULL);
+		usleep(100);
 	}
 	return (NULL);
 }

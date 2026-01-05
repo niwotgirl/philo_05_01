@@ -12,6 +12,7 @@
 
 #include "philosophers.h"
 
+/* Skip leading whitespace and validate sign; return index or -1 on invalid. */
 int	skip_ws_and_check_sign(const char *nptr)
 {
 	int	i;
@@ -26,6 +27,7 @@ int	skip_ws_and_check_sign(const char *nptr)
 	return (i);
 }
 
+/* Atoi with validation: rejects negatives, non-digits, and overflow. */
 int	ft_error_atoi(const char *nptr)
 {
 	int		i;

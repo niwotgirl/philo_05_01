@@ -6,13 +6,14 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/11/20 16:21:56 by aabelkis          #+#    #+#             */
-/*   Updated: 2025/11/20 18:01:03 by aabelkis         ###   ########.fr       */
+/*   Updated: 2026/01/05 16:50:00 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philosophers.h"
 
-char	*ft_strcpy(char *dest, const char *src)
+/* Copy C-string src into dest. */
+/*char	*ft_strcpy(char *dest, const char *src)
 {
 	int	i;
 
@@ -26,8 +27,9 @@ char	*ft_strcpy(char *dest, const char *src)
 	}
 	dest[i] = '\0';
 	return (dest);
-}
+}*/
 
+/* Copy n bytes from src to dest.
 void	*ft_memcpy(void *dest, const void *src, size_t n)
 {
 	unsigned char		*d;
@@ -45,8 +47,9 @@ void	*ft_memcpy(void *dest, const void *src, size_t n)
 		n--;
 	}
 	return (dest);
-}
+}*/
 
+/* Return length of C-string s.
 size_t	ft_strlen(const char *s)
 {
 	size_t	i;
@@ -55,8 +58,9 @@ size_t	ft_strlen(const char *s)
 	while (s[i] != '\0')
 		i++;
 	return (i);
-}
+}*/
 
+/* Allocate and duplicate a C-string.
 char	*ft_strdup(const char *s)
 {
 	size_t	n;
@@ -68,4 +72,4 @@ char	*ft_strdup(const char *s)
 		return (NULL);
 	ft_memcpy(ptr, s, n);
 	return (ptr);
-}
+}*/
