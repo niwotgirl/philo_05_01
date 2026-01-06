@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2026/01/05 16:54:21 by aabelkis          #+#    #+#             */
-/*   Updated: 2026/01/05 18:53:18 by aabelkis         ###   ########.fr       */
+/*   Updated: 2026/01/06 14:46:57 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -51,6 +51,7 @@ int	validate_and_init(int argc, char **argv, t_monitor *m)
 	m->someone_died = 0;
 	m->start_time_ms = get_current_time_ms();
 	pthread_mutex_init(&m->print_mutex, NULL);
+	pthread_mutex_init(&m->death_mutex, NULL);
 	return (0);
 }
 

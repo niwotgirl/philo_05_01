@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/07 12:51:50 by aabelkis          #+#    #+#             */
-/*   Updated: 2026/01/05 20:41:43 by aabelkis         ###   ########.fr       */
+/*   Updated: 2026/01/06 14:46:57 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -78,16 +78,14 @@ void	print_timestamped_id(t_monitor_vars *vars)
 /* Detect starvation for current philosopher; mark death once. */
 int	check_philo_death(t_monitor_vars *vars)
 {
-	int	has_meal_limit;
-
-	has_meal_limit = (vars->monitor->philos[0].minimum_meals > 0);
 	if (vars->now - vars->last_meal >= vars->p->time_to_die)
 	{
+		pthread_mutex_lock(&vars->monitor->death_mutex);
+		vars->monitor->someone_died = 1;
+		pthread_mutex_unlock(&vars->monitor->death_mutex);
 		pthread_mutex_lock(&vars->monitor->print_mutex);
 		printf("%ld %d died\n",
 			vars->now - vars->monitor->start_time_ms, vars->p->id);
-		if (!has_meal_limit)
-			vars->monitor->someone_died = 1;
 		pthread_mutex_unlock(&vars->monitor->print_mutex);
 		return (1);
 	}

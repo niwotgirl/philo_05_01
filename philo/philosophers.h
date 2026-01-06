@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 14:01:59 by aabelkis          #+#    #+#             */
-/*   Updated: 2026/01/05 20:41:43 by aabelkis         ###   ########.fr       */
+/*   Updated: 2026/01/06 13:25:41 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,8 +41,9 @@
 */
 typedef struct s_philo
 {
-	pthread_mutex_t		*left_fork_mutex;
-	pthread_mutex_t		right_fork_mutex;
+	pthread_mutex_t		*left_fork_mutex;     // set in main
+	pthread_mutex_t		right_fork_mutex;     // set in main
+	pthread_mutex_t		meal_mutex;           // protects last_meal_time_ms & meals_eaten
 	pthread_t			thread;
 	int					id;
 	int					time_to_die;
@@ -66,11 +67,12 @@ typedef struct s_monitor
 } t_monitor;*/
 typedef struct s_monitor
 {
-	t_philo				*philos;
+	t_philo				*philos;            // array of philosophers
 	int					num_of_phil;
-	int					someone_died;
+	int					someone_died;       // protected by death_mutex
 	long				start_time_ms;
-	pthread_mutex_t		print_mutex;
+	pthread_mutex_t		print_mutex;        // only for printing
+	pthread_mutex_t		death_mutex;        // protects someone_died
 	pthread_t			thread;
 }	t_monitor;
 

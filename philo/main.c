@@ -6,7 +6,7 @@
 /*   By: aabelkis <aabelkis@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/07/06 14:01:06 by aabelkis          #+#    #+#             */
-/*   Updated: 2026/01/05 19:22:16 by aabelkis         ###   ########.fr       */
+/*   Updated: 2026/01/06 14:46:57 by aabelkis         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -21,6 +21,7 @@ void	init_forks(t_monitor *m)
 	while (i < m->num_of_phil)
 	{
 		pthread_mutex_init(&m->philos[i].right_fork_mutex, NULL);
+		pthread_mutex_init(&m->philos[i].meal_mutex, NULL);
 		i++;
 	}
 	i = 0;
@@ -74,9 +75,11 @@ void	cleanup(t_monitor *m)
 	while (i < m->num_of_phil)
 	{
 		pthread_mutex_destroy(&m->philos[i].right_fork_mutex);
+		pthread_mutex_destroy(&m->philos[i].meal_mutex);
 		i++;
 	}
 	pthread_mutex_destroy(&m->print_mutex);
+	pthread_mutex_destroy(&m->death_mutex);
 	free(m->philos);
 }
 
