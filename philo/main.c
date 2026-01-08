@@ -87,14 +87,23 @@ void	cleanup(t_monitor *m)
 int	main(int argc, char **argv)
 {
 	t_monitor	mon;
+	int			i;
 
 	if (validate_and_init(argc, argv, &mon))
 		return (1);
 	init_philosophers(argc, argv, &mon);
+	init_forks(&mon);
+	mon.start_time_ms = get_current_time_ms();
+	i = 0;
+	while (i < mon.num_of_phil)
+	{
+		mon.philos[i].last_meal_time_ms = mon.start_time_ms;
+		i++;
+	}
 	if (handle_single_philosopher(&mon))
 		return (0);
-	init_forks(&mon);
 	create_philo_threads(&mon);
+	usleep(1000);
 	pthread_create(&mon.thread, NULL, &monitor_routine, &mon);
 	join_all_threads(&mon);
 	cleanup(&mon);

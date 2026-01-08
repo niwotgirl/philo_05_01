@@ -12,69 +12,51 @@
 
 #include "philosophers.h"
 
-/* Lock forks in an order that avoids deadlock. */
+/* Lock two forks in order, printing when each is taken.
+   Return 1 on success, 0 if death detected. */
+static int	lock_two_forks(t_philo *philo, pthread_mutex_t *first,
+	pthread_mutex_t *second)
+{
+	pthread_mutex_lock(first);
+	if (!safe_print(philo, "has taken a fork"))
+	{
+		pthread_mutex_unlock(first);
+		return (0);
+	}
+	pthread_mutex_lock(second);
+	if (!safe_print(philo, "has taken a fork"))
+	{
+		pthread_mutex_unlock(second);
+		pthread_mutex_unlock(first);
+		return (0);
+	}
+	return (1);
+}
+
+/* Lock forks in an order that avoids deadlock.
+   If a death is signaled after acquiring any fork, 
+   release held forks and return. */
 void	pick_up_forks(t_philo *philo)
 {
-	long	now;
-
-	/* Last philosopher breaks the cycle to prevent deadlock */
-	if (philo->id == philo->monitor->num_of_phil)
-	{
-		pthread_mutex_lock(&philo->right_fork_mutex);
-		if (!philo->monitor->someone_died)
-		{
-			pthread_mutex_lock(&philo->monitor->print_mutex);
-			now = get_current_time_ms();
-			printf("%ld %d has taken a fork\n", now - philo->monitor->start_time_ms, philo->id);
-			pthread_mutex_unlock(&philo->monitor->print_mutex);
-		}
-		pthread_mutex_lock(philo->left_fork_mutex);
-		if (!philo->monitor->someone_died)
-		{
-			pthread_mutex_lock(&philo->monitor->print_mutex);
-			now = get_current_time_ms();
-			printf("%ld %d has taken a fork\n", now - philo->monitor->start_time_ms, philo->id);
-			pthread_mutex_unlock(&philo->monitor->print_mutex);
-		}
-	}
+	if (philo->id % 2 == 0)
+		lock_two_forks(philo, &philo->right_fork_mutex, philo->left_fork_mutex);
 	else
-	{
-		pthread_mutex_lock(philo->left_fork_mutex);
-		if (!philo->monitor->someone_died)
-		{
-			pthread_mutex_lock(&philo->monitor->print_mutex);
-			now = get_current_time_ms();
-			printf("%ld %d has taken a fork\n", now - philo->monitor->start_time_ms, philo->id);
-			pthread_mutex_unlock(&philo->monitor->print_mutex);
-		}
-		pthread_mutex_lock(&philo->right_fork_mutex);
-		if (!philo->monitor->someone_died)
-		{
-			pthread_mutex_lock(&philo->monitor->print_mutex);
-			now = get_current_time_ms();
-			printf("%ld %d has taken a fork\n", now - philo->monitor->start_time_ms, philo->id);
-			pthread_mutex_unlock(&philo->monitor->print_mutex);
-		}
-	}
+		lock_two_forks(philo, philo->left_fork_mutex, &philo->right_fork_mutex);
 }
 
 /* Record eating state, update meal time/count, and sleep eating duration. */
+	/* Update meal time immediately after print to prevent monitor race */
 void	eat(t_philo *philo)
 {
 	long	now;
-	int		died;
 
-	pthread_mutex_lock(&philo->monitor->death_mutex);
-	died = philo->monitor->someone_died;
-	pthread_mutex_unlock(&philo->monitor->death_mutex);
-	if (died)
+	now = safe_print(philo, "is eating");
+	if (!now)
 		return ;
-	pthread_mutex_lock(&philo->monitor->print_mutex);
-	now = get_current_time_ms();
+	pthread_mutex_lock(&philo->meal_mutex);
 	philo->last_meal_time_ms = now;
 	philo->meals_eaten++;
-	printf("%ld %d is eating\n", now - philo->monitor->start_time_ms, philo->id);
-	pthread_mutex_unlock(&philo->monitor->print_mutex);
+	pthread_mutex_unlock(&philo->meal_mutex);
 	custom_sleep(philo->time_to_eat);
 }
 
@@ -84,49 +66,6 @@ void	release_forks(t_philo *philo)
 	pthread_mutex_unlock(philo->left_fork_mutex);
 	pthread_mutex_unlock(&philo->right_fork_mutex);
 }
-
-/* Lock forks in an order that avoids deadlock.
-void	pick_up_forks(t_philo *philo)
-{
-	if (philo->id % 2)
-	{
-		pthread_mutex_lock(philo->left_fork_mutex);
-		pthread_mutex_lock(&philo->right_fork_mutex);
-	}
-	else
-	{
-		pthread_mutex_lock(&philo->right_fork_mutex);
-		pthread_mutex_lock(philo->left_fork_mutex);
-	}
-}
-
- Record eating state, update meal time/count, and sleep eating duration. 
-void	eat(t_philo *philo)
-{
-	long	now;
-
-	pthread_mutex_lock(&philo->monitor->print_mutex);
-	now = get_current_time_ms();
-	if (philo->monitor->someone_died)
-	{
-		pthread_mutex_unlock(&philo->monitor->print_mutex);
-		return ;
-	}
-	printf("%ld %d has taken a fork\n", now - philo->monitor->start_time_ms, philo->id);
-	printf("%ld %d has taken a fork\n", now - philo->monitor->start_time_ms, philo->id);
-	printf("%ld %d is eating\n", now - philo->monitor->start_time_ms, philo->id);
-	philo->meals_eaten++;
-	philo->last_meal_time_ms = now;
-	pthread_mutex_unlock(&philo->monitor->print_mutex);
-	custom_sleep(philo->time_to_eat);
-}
-
- Unlock both forks after eating. 
-void	release_forks(t_philo *philo)
-{
-	pthread_mutex_unlock(philo->left_fork_mutex);
-	pthread_mutex_unlock(&philo->right_fork_mutex);
-}*/
 
 /* Return 1 if philosopher reached the optional meal quota. */
 int	has_finished_meals(t_philo *philo)

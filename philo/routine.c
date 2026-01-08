@@ -24,82 +24,57 @@ int	exit_on_death(t_philo *philo)
 }
 
 /* Set status to sleeping and pause for sleep duration. */
+	/* Check if death was signaled after print before sleeping */
 void	philo_sleep(t_philo *philo)
 {
-	long	now;
 	int	died;
 
-	/* First check: bail early if death already signaled. */
-	pthread_mutex_lock(&philo->monitor->death_mutex);
-	died = philo->monitor->someone_died;
-	pthread_mutex_unlock(&philo->monitor->death_mutex);
-	if (died)
+	if (!safe_print(philo, "is sleeping"))
 		return ;
-
-	/* Print under death mutex -> print mutex to avoid racing with death flag. */
-	pthread_mutex_lock(&philo->monitor->death_mutex);
-	died = philo->monitor->someone_died;
-	if (!died)
-	{
-		pthread_mutex_lock(&philo->monitor->print_mutex);
-		now = get_current_time_ms();
-		printf("%ld %d is sleeping\n", now - philo->monitor->start_time_ms, philo->id);
-		pthread_mutex_unlock(&philo->monitor->print_mutex);
-	}
-	pthread_mutex_unlock(&philo->monitor->death_mutex);
-
-	/* Second check: skip the sleep duration if death was signaled after print. */
 	pthread_mutex_lock(&philo->monitor->death_mutex);
 	died = philo->monitor->someone_died;
 	pthread_mutex_unlock(&philo->monitor->death_mutex);
 	if (!died)
-	    custom_sleep(philo->time_to_sleep);
+		custom_sleep(philo->time_to_sleep);
 }
 
 /* Mark thinking if there is time before starvation window closes. */
+	/* Small delay only for odd-count with very comfortable margins (>250ms) */
+			/* Only add delay if we have >250ms margin after one full cycle */
 void	philo_think(t_philo *philo)
 {
-	long	now;
-	int	died;
+	int		think_time;
 
-
-	/* Always announce thinking unless a death is already signaled. */
-	pthread_mutex_lock(&philo->monitor->death_mutex);
-	died = philo->monitor->someone_died;
-	pthread_mutex_unlock(&philo->monitor->death_mutex);
-	if (died)
+	if (!safe_print(philo, "is thinking"))
 		return ;
-	pthread_mutex_lock(&philo->monitor->print_mutex);
-	now = get_current_time_ms();
-	printf("%ld %d is thinking\n", now - philo->monitor->start_time_ms, philo->id);
-	pthread_mutex_unlock(&philo->monitor->print_mutex);
-}
-/*unused version void	philo_think(t_philo *philo)
-{
-	long	now;
-	long	last_meal;
-
-	now = get_current_time_ms();
-	pthread_mutex_lock(&philo->monitor->print_mutex);
-	last_meal = philo->last_meal_time_ms;
-	pthread_mutex_unlock(&philo->monitor->print_mutex);
-	if (now + 1 < last_meal + philo->time_to_die)
+	if (philo->monitor->num_of_phil % 2 == 1
+		&& philo->monitor->num_of_phil <= 7)
 	{
-		pthread_mutex_lock(&philo->monitor->print_mutex);
-		philo->status = 3; // thinking
-		philo->has_new_status = 1;
-		pthread_mutex_unlock(&philo->monitor->print_mutex);
+		think_time = philo->time_to_die - philo->time_to_eat
+			- philo->time_to_sleep;
+		if (think_time > 250)
+		{
+			usleep((philo->time_to_eat / 4) * 1000);
+		}
 	}
-}*/
+}
 
 /* Philosopher thread loop: eat, sleep, think until done or death. */
+/* Stagger startup for better fairness:
+	   - Large counts (≥100): odd IDs wait 1ms
+	   - Medium counts (6-99) with even number: 
+	   		odd IDs wait 500µs for fairness */
+// If max meals reached, break after last eat, but still log sleep/thinking
 void	*routine(void *arg)
 {
 	t_philo	*philo;
 
 	philo = (t_philo *)arg;
-	if (philo->id % 2 == 0)
+	if (philo->monitor->num_of_phil >= 100 && philo->id % 2 == 1)
 		usleep(1000);
+	else if (philo->monitor->num_of_phil % 2 == 0
+		&& philo->monitor->num_of_phil >= 6 && philo->id % 2 == 1)
+		usleep(500);
 	while (1)
 	{
 		if (exit_on_death(philo))
@@ -107,12 +82,11 @@ void	*routine(void *arg)
 		pick_up_forks(philo);
 		eat(philo);
 		release_forks(philo);
-		// If max meals reached, break after last eat, but still log sleep/thinking
 		if (has_finished_meals(philo))
 		{
 			philo_sleep(philo);
 			philo_think(philo);
-			break;
+			break ;
 		}
 		philo_sleep(philo);
 		philo_think(philo);

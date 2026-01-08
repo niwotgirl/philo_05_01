@@ -19,5 +19,5 @@ void	custom_sleep(int duration_ms)
 
 	start = get_current_time_ms();
 	while (get_current_time_ms() - start < duration_ms)
-		usleep(100); // sleep 100 µs steps
+		usleep(100);
 }

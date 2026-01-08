@@ -49,7 +49,7 @@ int	validate_and_init(int argc, char **argv, t_monitor *m)
 		return (1);
 	memset(m->philos, 0, sizeof(t_philo) * m->num_of_phil);
 	m->someone_died = 0;
-	m->start_time_ms = get_current_time_ms();
+	m->start_time_ms = 0;
 	pthread_mutex_init(&m->print_mutex, NULL);
 	pthread_mutex_init(&m->death_mutex, NULL);
 	return (0);
