@@ -79,7 +79,8 @@ void	*routine(void *arg)
 	{
 		if (exit_on_death(philo))
 			break ;
-		pick_up_forks(philo);
+		if (!pick_up_forks(philo))
+			break ;
 		eat(philo);
 		release_forks(philo);
 		if (has_finished_meals(philo))

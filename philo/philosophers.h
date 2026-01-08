@@ -82,7 +82,7 @@ void	print_timestamped_id(t_monitor_vars *vars);
 void	*routine(void *arg);
 void	custom_sleep(int val);
 long	get_current_time_ms(void);
-void	pick_up_forks(t_philo *philo);
+int		pick_up_forks(t_philo *philo);
 void	eat(t_philo *philo);
 void	release_forks(t_philo *philo);
 int		has_finished_meals(t_philo *philo);

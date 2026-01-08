@@ -35,13 +35,13 @@ static int	lock_two_forks(t_philo *philo, pthread_mutex_t *first,
 
 /* Lock forks in an order that avoids deadlock.
    If a death is signaled after acquiring any fork, 
-   release held forks and return. */
-void	pick_up_forks(t_philo *philo)
+   release held forks and return 0. Returns 1 on success. */
+int	pick_up_forks(t_philo *philo)
 {
 	if (philo->id % 2 == 0)
-		lock_two_forks(philo, &philo->right_fork_mutex, philo->left_fork_mutex);
+		return (lock_two_forks(philo, &philo->right_fork_mutex, philo->left_fork_mutex));
 	else
-		lock_two_forks(philo, philo->left_fork_mutex, &philo->right_fork_mutex);
+		return (lock_two_forks(philo, philo->left_fork_mutex, &philo->right_fork_mutex));
 }
 
 /* Record eating state, update meal time/count, and sleep eating duration. */
