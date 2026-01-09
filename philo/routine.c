@@ -13,7 +13,7 @@
 #include "philosophers.h"
 
 /* Check global death flag; instruct thread to stop if set. */
-int	exit_on_death(t_philo *philo)
+int	death_detected(t_philo *philo)
 {
 	int	died;
 
@@ -77,9 +77,7 @@ void	*routine(void *arg)
 		usleep(500);
 	while (1)
 	{
-		if (exit_on_death(philo))
-			break ;
-		if (!pick_up_forks(philo))
+		if (death_detected(philo) || !pick_up_forks(philo))
 			break ;
 		eat(philo);
 		release_forks(philo);

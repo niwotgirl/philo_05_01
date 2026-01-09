@@ -88,6 +88,7 @@ void	release_forks(t_philo *philo);
 int		has_finished_meals(t_philo *philo);
 long	safe_print(t_philo *philo, char *status);
 void	struct_init(int val, int j, int i, t_philo *philo);
-int		check_someone_died_and_init(t_monitor_vars *vars);
+int		check_death_flag(t_monitor_vars *vars);
+void	init_monitor_loop_vars(t_monitor_vars *vars);
 
 #endif

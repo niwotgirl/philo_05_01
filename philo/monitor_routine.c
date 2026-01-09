@@ -45,7 +45,7 @@ int	check_all_done(t_monitor_vars *vars)
 }
 
 /* Signal termination when everyone is done eating. */
-int	handle_all_done(t_monitor_vars *vars)
+int	signal_termination(t_monitor_vars *vars)
 {
 	pthread_mutex_lock(&vars->monitor->death_mutex);
 	vars->monitor->someone_died = 1;
@@ -53,7 +53,8 @@ int	handle_all_done(t_monitor_vars *vars)
 	return (1);
 }
 
-/* Check if philosopher died; return 1 if death detected, 0 otherwise. */
+/* Check if philosopher died; return 1 if death detected, 0 otherwise 
+	(meal limit reached or not dead). */
 int	check_philosopher_death(t_monitor_vars *vars)
 {
 	if (vars->min_meals > 0 && vars->meals >= vars->min_meals)
@@ -83,9 +84,9 @@ void	*monitor_routine(void *arg)
 	has_meal_limit = (vars.monitor->philos[0].minimum_meals > 0);
 	while (1)
 	{
-		if (check_someone_died_and_init(&vars))
+		if (check_death_flag(&vars))
 			break ;
-		vars.now = get_current_time_ms();
+		init_monitor_loop_vars(&vars);
 		while (vars.i < vars.monitor->num_of_phil)
 		{
 			snapshot_philo_state(&vars);
@@ -94,7 +95,7 @@ void	*monitor_routine(void *arg)
 			vars.i++;
 		}
 		if (has_meal_limit && check_all_done(&vars))
-			if (handle_all_done(&vars) == 1)
+			if (signal_termination(&vars) == 1)
 				return (NULL);
 		usleep(200);
 	}

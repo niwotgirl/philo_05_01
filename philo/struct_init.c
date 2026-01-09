@@ -29,19 +29,21 @@ void	struct_init(int val, int j, int i, t_philo *philo)
 		philo->minimum_meals = val;
 }
 
-/*init for monitor variables*/
-/* Abort if someone died; otherwise prime monitor loop counters/timestamp. */
-int	check_someone_died_and_init(t_monitor_vars *vars)
+/* Check if death flag is set and return 1 if true, 0 otherwise. */
+int	check_death_flag(t_monitor_vars *vars)
 {
 	int	someone_died;
 
 	pthread_mutex_lock(&vars->monitor->death_mutex);
 	someone_died = vars->monitor->someone_died;
 	pthread_mutex_unlock(&vars->monitor->death_mutex);
-	if (someone_died)
-		return (1);
+	return (someone_died);
+}
+
+/* Initialize monitor loop counters and timestamp. */
+void	init_monitor_loop_vars(t_monitor_vars *vars)
+{
 	vars->now = get_current_time_ms();
 	vars->i = 0;
 	vars->all_done = 1;
-	return (0);
 }

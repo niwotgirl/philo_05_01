@@ -39,9 +39,11 @@ static int	lock_two_forks(t_philo *philo, pthread_mutex_t *first,
 int	pick_up_forks(t_philo *philo)
 {
 	if (philo->id % 2 == 0)
-		return (lock_two_forks(philo, &philo->right_fork_mutex, philo->left_fork_mutex));
+		return (lock_two_forks(philo, &philo->right_fork_mutex,
+				philo->left_fork_mutex));
 	else
-		return (lock_two_forks(philo, philo->left_fork_mutex, &philo->right_fork_mutex));
+		return (lock_two_forks(philo, philo->left_fork_mutex,
+				&philo->right_fork_mutex));
 }
 
 /* Record eating state, update meal time/count, and sleep eating duration. */

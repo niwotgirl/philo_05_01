@@ -43,7 +43,7 @@ int	validate_and_init(int argc, char **argv, t_monitor *m)
 {
 	if (validate_all_args(argc, argv))
 		return (1);
-	m->num_of_phil = ft_error(argv, 1);
+	m->num_of_phil = ft_error_atoi(argv[1]);
 	m->philos = malloc(sizeof(t_philo) * m->num_of_phil);
 	if (!m->philos)
 		return (1);
@@ -63,14 +63,14 @@ void	init_philosophers(int argc, char **argv, t_monitor *m)
 	i = 0;
 	while (i < m->num_of_phil)
 	{
-		struct_init(ft_error(argv, 2), i, 2, &m->philos[i]);
-		struct_init(ft_error(argv, 3), i, 3, &m->philos[i]);
-		struct_init(ft_error(argv, 4), i, 4, &m->philos[i]);
+		struct_init(ft_error_atoi(argv[2]), i, 2, &m->philos[i]);
+		struct_init(ft_error_atoi(argv[3]), i, 3, &m->philos[i]);
+		struct_init(ft_error_atoi(argv[4]), i, 4, &m->philos[i]);
 		if (argc == 6)
-			struct_init(ft_error(argv, 5), i, 5, &m->philos[i]);
+			struct_init(ft_error_atoi(argv[5]), i, 5, &m->philos[i]);
 		m->philos[i].id = i + 1;
 		m->philos[i].monitor = m;
-		m->philos[i].last_meal_time_ms = m->start_time_ms;
+		m->philos[i].last_meal_time_ms = 0;
 		i++;
 	}
 }
@@ -82,6 +82,7 @@ int	handle_single_philosopher(t_monitor *m)
 
 	if (m->num_of_phil != 1)
 		return (0);
+	pthread_mutex_lock(&m->philos[0].right_fork_mutex);
 	pthread_mutex_lock(&m->print_mutex);
 	printf("0 1 has taken a fork\n");
 	pthread_mutex_unlock(&m->print_mutex);
@@ -91,7 +92,11 @@ int	handle_single_philosopher(t_monitor *m)
 	pthread_mutex_lock(&m->print_mutex);
 	printf("%ld 1 died\n", get_current_time_ms() - m->start_time_ms);
 	pthread_mutex_unlock(&m->print_mutex);
+	pthread_mutex_unlock(&m->philos[0].right_fork_mutex);
+	pthread_mutex_destroy(&m->philos[0].right_fork_mutex);
+	pthread_mutex_destroy(&m->philos[0].meal_mutex);
 	pthread_mutex_destroy(&m->print_mutex);
+	pthread_mutex_destroy(&m->death_mutex);
 	free(m->philos);
 	return (1);
 }
